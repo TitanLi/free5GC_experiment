@@ -53,3 +53,10 @@ make -j `nproc`
 make install
 
 sudo sh -c 'echo 1 > /proc/sys/net/ipv4/ip_forward'
+
+git clone https://github.com/TitanLi/free5GC_experiment.git
+cp free5GC_experiment/tacker/free5gc.conf free5gc-stage-1/install/etc/free5gc/
+cp free5GC_experiment/tacker/amf.conf free5gc-stage-1/install/etc/free5gc/freeDiameter/
+cp free5GC_experiment/tacker/hss.conf free5gc-stage-1/install/etc/free5gc/freeDiameter/
+cp free5GC_experiment/tacker/pcrf.conf free5gc-stage-1/install/etc/free5gc/freeDiameter/
+cp free5GC_experiment/tacker/smf.conf free5gc-stage-1/install/etc/free5gc/freeDiameter/

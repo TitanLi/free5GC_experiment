@@ -1,0 +1,56 @@
+tosca_definitions_version: tosca_simple_profile_for_nfv_1_0_0
+
+description: Demo example
+
+node_types:
+  tosca.nodes.nfv.PCRF_VNF:
+    capabilities:
+      forwarder1:
+          type: tosca.capabilities.nfv.Forwarder
+topology_template:
+  substitution_mappings:
+    node_type: tosca.nodes.nfv.PCRF_VNF
+    capabilities:
+      forwarder1: [PCRF-CP, forwarder]
+  node_templates:
+    PCRF-VDU:
+      type: tosca.nodes.nfv.VDU.Tacker
+      properties:
+        image: free5gc
+        flavor: ds2G
+        availability_zone: nova
+        mgmt_driver: noop
+        key_name: Titan
+        config: |
+          param0: key1
+          param1: key2
+        user_data_format: RAW
+        user_data: |
+          #!/bin/sh
+          echo 1 > /proc/sys/net/ipv4/ip_forward
+    PCRF-CP:
+      type: tosca.nodes.nfv.CP.Tacker
+      properties:
+        management: true
+        order: 0
+        anti_spoofing_protection: false
+        ip_address: 10.10.0.15
+      requirements:
+        - virtualLink:
+            node: PCRF-VL
+        - virtualBinding:
+            node: PCRF-VDU
+    PCRF-VL:
+      type: tosca.nodes.nfv.VL
+      properties:
+        network_name: net_mgmt
+        vendor: Tacker
+
+    PCRF-FIP:
+      type: tosca.nodes.network.FloatingIP
+      properties:
+        floating_network: public
+        floating_ip_address: 192.168.2.85
+      requirements:
+        - link:
+            node: PCRF-CP
