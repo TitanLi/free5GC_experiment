@@ -1,9 +1,9 @@
 tosca_definitions_version: tosca_simple_profile_for_nfv_1_0_0
 
-description: Demo example
+description: Demo AMF
 
 metadata:
-  template_name: sample-tosca-vnfd1
+  template_name: amf
 
 topology_template:
   node_templates:
@@ -23,10 +23,11 @@ topology_template:
           #!/bin/sh
           echo 1 > /proc/sys/net/ipv4/ip_forward
           git clone https://github.com/TitanLi/free5GC_experiment.git
-          cp free5GC_experiment/deploy/free5gc.conf free5gc-stage-1/install/etc/free5gc/
-          cp free5GC_experiment/deploy/AMF/amf.conf free5gc-stage-1/install/etc/free5gc/freeDiameter/
+          cp free5GC_experiment/deploy/free5gc.conf /home/ubuntu/free5gc-stage-1/install/etc/free5gc/
+          cp free5GC_experiment/deploy/AMF/amf.conf /home/ubuntu/free5gc-stage-1/install/etc/free5gc/freeDiameter/
           sudo sh -c "echo '10.10.0.16 mongodb' >> /etc/hosts"
-          sed -i "s/mongodb:\/\/localhost/mongodb:\/\/mongodb/g" free5gc-stage-1/install/etc/free5gc/free5gc.conf
+          sed -i "s/mongodb:\/\/localhost/mongodb:\/\/mongodb/g" /home/ubuntu/free5gc-stage-1/install/etc/free5gc/free5gc.conf
+          . /home/ubuntu/free5gc-stage-1/free5gc-amfd &
     AMF-CP11:
       type: tosca.nodes.nfv.CP.Tacker
       properties:

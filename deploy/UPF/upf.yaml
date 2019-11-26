@@ -1,13 +1,13 @@
 tosca_definitions_version: tosca_simple_profile_for_nfv_1_0_0
 
-description: Demo example
+description: Demo UPF
 
 metadata:
-  template_name: sample-tosca-vnfd1
+  template_name: upf
 
 topology_template:
   node_templates:
-    MONGODB-VDU:
+    UPF-VDU:
       type: tosca.nodes.nfv.VDU.Tacker
       properties:
         image: free5gc
@@ -22,32 +22,43 @@ topology_template:
         user_data: |
           #!/bin/sh
           echo 1 > /proc/sys/net/ipv4/ip_forward
-          sed -i "s/mongodb:\/\/localhost/mongodb:\/\/mongodb/g" /home/ubuntu/free5gc-stage-1/install/etc/free5gc/free5gc.conf
+          git clone https://github.com/TitanLi/free5GC_experiment.git
+          cp free5GC_experiment/deploy/free5gc.conf /home/ubuntu/free5gc-stage-1/install/etc/free5gc/
           sudo sh -c "echo '10.10.0.16 mongodb' >> /etc/hosts"
-    MONGODB-CP11:
+          sed -i "s/mongodb:\/\/localhost/mongodb:\/\/mongodb/g" /home/ubuntu/free5gc-stage-1/install/etc/free5gc/free5gc.conf
+          sudo ip tuntap add mode tun dev uptun
+          sudo ip addr add 45.45.0.1/16 dev uptun
+          sudo ip link set dev uptun up
+          sudo iptables -F
+          sudo iptables -X
+          sudo iptables -Z
+          sudo iptables -t nat -A POSTROUTING -o ens3 -j MASQUERADE
+          sudo iptables -I INPUT -i uptun -j ACCEPT
+          . /home/ubuntu/free5gc-stage-1/free5gc-upfd &
+    UPF-CP11:
       type: tosca.nodes.nfv.CP.Tacker
       properties:
         management: true
         order: 0
         anti_spoofing_protection: false
-        ip_address: 10.10.0.16
+        ip_address: 10.10.0.14
       requirements:
         - virtualLink:
-            node: MONGODB-VL11
+            node: UPF-VL11
         - virtualBinding:
-            node: MONGODB-VDU
+            node: UPF-VDU
 
-    MONGODB-VL11:
+    UPF-VL11:
       type: tosca.nodes.nfv.VL
       properties:
         network_name: net_mgmt
         vendor: Tacker
 
-    MONGODB-FIP1:
+    UPF-FIP1:
       type: tosca.nodes.network.FloatingIP
       properties:
         floating_network: public
-        floating_ip_address: 192.168.2.116
+        floating_ip_address: 192.168.2.114
       requirements:
         - link:
-            node: MONGODB-CP11
+            node: UPF-CP11
