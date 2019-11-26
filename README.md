@@ -1,4 +1,31 @@
+# OpenStack
+* OS:Ubuntu 18.04
+
+1. Install OpenStack Cluster(Controller、Compute1)
+2. 新增Ubuntu Image
+3. 新增Public Network
+4. 新增Flavor: 2 Core, 2GB Mem, 20 GB Disk
+5. 新增Project Network Subnet
+6. 新增Key
+7. 新增Security Group(TCP,UDP,ICMP)
+8. 新增VM
+9. 更改free5gc.conf(s1ap=SubnetIP,460,99)
+10. 更改amf.conf(ListenOn=SubnetIP)
+11. 執行
+```shell
+$ sudo sh -c 'echo 1 > /proc/sys/net/ipv4/ip_forward'
+$ sudo iptables -t nat -A POSTROUTING -o ens3 -j MASQUERADE
+$ sudo iptables -I INPUT -i uptun -j ACCEPT
+```
+
+```shell
+$ sudo echo 'nameserver 8.8.8.8' > /etc/resolv.conf
+$ sed -i "s/mongodb:\/\/localhost/mongodb:\/\/mongodb/g" free5gc-stage-1/install/etc/free5gc/free5gc.conf
+$ sudo sh -c "echo '10.10.0.16 mongodb' >> /etc/hosts"
+```
+
 # free5GC_experiment
+example:
 |VNF    |Subnet    |floating IP |
 |-------|----------|------------|
 |AMF    |10.30.0.17|192.168.2.61|
@@ -9,6 +36,16 @@
 |mongodb|10.30.0.25|192.168.2.66|
 |webUI  |10.30.0.25|192.168.2.66|
 
+deploy:
+|VNF    |Subnet    |floating IP  |
+|-------|----------|-------------|
+|AMF    |10.10.0.11|192.168.2.111|
+|HSS    |10.10.0.12|192.168.2.112|
+|SMF    |10.10.0.13|192.168.2.113|
+|UPF    |10.10.0.14|192.168.2.114|
+|PCRF   |10.10.0.15|192.168.2.115|
+|mongodb|10.10.0.16|192.168.2.116|
+|webUI  |10.10.0.17|192.168.2.117|
 # install
 ```bash
 $ ./deploy/install.sh
@@ -25,4 +62,11 @@ $ iptables -X
 $ iptables -Z
 $ iptables -t nat -A POSTROUTING -o ens3 -j MASQUERADE
 $ iptables -I INPUT -i uptun -j ACCEPT
+```
+
+# AMF
+```shell
+$ sudo sh -c 'echo 1 > /proc/sys/net/ipv4/ip_forward'
+$ sudo iptables -t nat -A POSTROUTING -o ens3 -j MASQUERADE
+$ sudo iptables -I INPUT -i uptun -j ACCEPT
 ```

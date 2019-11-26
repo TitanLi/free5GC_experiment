@@ -2,22 +2,16 @@ tosca_definitions_version: tosca_simple_profile_for_nfv_1_0_0
 
 description: Demo example
 
-node_types:
-  tosca.nodes.nfv.MONGODB_VNF:
-    capabilities:
-      forwarder1:
-          type: tosca.capabilities.nfv.Forwarder
+metadata:
+  template_name: sample-tosca-vnfd1
+
 topology_template:
-  substitution_mappings:
-    node_type: tosca.nodes.nfv.MONGODB_VNF
-    capabilities:
-      forwarder1: [MONGODB-CP, forwarder]
   node_templates:
     MONGODB-VDU:
       type: tosca.nodes.nfv.VDU.Tacker
       properties:
-        image: mongodb
-        flavor: ds2G
+        image: free5gc
+        flavor: test
         availability_zone: nova
         mgmt_driver: noop
         key_name: Titan
@@ -28,7 +22,9 @@ topology_template:
         user_data: |
           #!/bin/sh
           echo 1 > /proc/sys/net/ipv4/ip_forward
-    MONGODB-CP:
+          sed -i "s/mongodb:\/\/localhost/mongodb:\/\/mongodb/g" free5gc-stage-1/install/etc/free5gc/free5gc.conf
+          sudo sh -c "echo '10.10.0.16 mongodb' >> /etc/hosts"
+    MONGODB-CP11:
       type: tosca.nodes.nfv.CP.Tacker
       properties:
         management: true
@@ -37,20 +33,21 @@ topology_template:
         ip_address: 10.10.0.16
       requirements:
         - virtualLink:
-            node: MONGODB-VL
+            node: MONGODB-VL11
         - virtualBinding:
             node: MONGODB-VDU
-    MONGODB-VL:
+
+    MONGODB-VL11:
       type: tosca.nodes.nfv.VL
       properties:
         network_name: net_mgmt
         vendor: Tacker
 
-    MONGODB-FIP:
+    MONGODB-FIP1:
       type: tosca.nodes.network.FloatingIP
       properties:
         floating_network: public
-        floating_ip_address: 192.168.2.86
+        floating_ip_address: 192.168.2.116
       requirements:
         - link:
-            node: MONGODB-CP
+            node: MONGODB-CP11
