@@ -12,12 +12,30 @@
 9. 更改free5gc.conf(s1ap=SubnetIP,460,99)
 10. 更改amf.conf(ListenOn=SubnetIP)
 11. 執行
+> 開啟路由功能
 ```shell
 $ sudo sh -c 'echo 1 > /proc/sys/net/ipv4/ip_forward'
 $ sudo iptables -t nat -A POSTROUTING -o ens3 -j MASQUERADE
 $ sudo iptables -I INPUT -i uptun -j ACCEPT
 ```
-
+12. 執行
+```shell
+$ . free5gc-amfd
+```
+13. 設定eNodeB
+14. 重啟eNodeB
+15. 新增Security Group
+- Other Protocol
+- Ingress
+- IP Protocol => -1
+- Remote => CIDR
+- CIDR => 0.0.0.0/0
+16. 進階應用
+> 抓取來自eNodeB封包(Controller)
+```shell
+$ tcpdump -i eno1 src 192.168.2.254
+```
+> 可用來更新數值
 ```shell
 $ sudo echo 'nameserver 8.8.8.8' > /etc/resolv.conf
 $ sed -i "s/mongodb:\/\/localhost/mongodb:\/\/mongodb/g" free5gc-stage-1/install/etc/free5gc/free5gc.conf
@@ -26,6 +44,7 @@ $ sudo sh -c "echo '10.10.0.16 mongodb' >> /etc/hosts"
 
 # free5GC_experiment
 example:
+
 |VNF    |Subnet    |floating IP |
 |-------|----------|------------|
 |AMF    |10.30.0.17|192.168.2.61|
@@ -37,6 +56,7 @@ example:
 |webUI  |10.30.0.25|192.168.2.66|
 
 deploy:
+
 |VNF    |Subnet    |floating IP  |
 |-------|----------|-------------|
 |AMF    |10.10.0.11|192.168.2.111|
@@ -46,9 +66,10 @@ deploy:
 |PCRF   |10.10.0.15|192.168.2.115|
 |mongodb|10.10.0.16|192.168.2.116|
 |webUI  |10.10.0.17|192.168.2.117|
+
 # install
 ```bash
-$ ./deploy/install.sh
+$ ./example/install.sh
 ```
 
 # UPF
