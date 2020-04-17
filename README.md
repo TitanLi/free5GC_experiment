@@ -91,3 +91,14 @@ $ sudo sh -c 'echo 1 > /proc/sys/net/ipv4/ip_forward'
 $ sudo iptables -t nat -A POSTROUTING -o ens3 -j MASQUERADE
 $ sudo iptables -I INPUT -i uptun -j ACCEPT
 ```
+
+# Rebuild free5gc Project
+```shell
+$ make maintainer-clean
+$ rm -rf ./install
+$ git pull
+$ autoreconf -iv
+$ ./configure --prefix=`pwd`/install
+$ make -j `nproc`
+$ make install
+```
