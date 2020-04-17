@@ -102,3 +102,12 @@ $ ./configure --prefix=`pwd`/install
 $ make -j `nproc`
 $ make install
 ```
+
+# 問題解決
+## ERRR: - The certificate is expired
+```shell
+$ cd support/freeDiameter
+$ ./make_certs.sh .
+$ cd ../..
+$ make install
+```
